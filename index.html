@@ -200,9 +200,11 @@
       border-radius: 8px;
       font-size: .88rem;
       font-weight: 500;
+      font-family: inherit;
       background: var(--bg-alt);
       color: var(--text);
       border: 1px solid var(--border);
+      cursor: pointer;
       transition: all .2s;
     }
 
@@ -624,7 +626,7 @@
       margin: 1.5rem auto 0;
     }
 
-    .bibtex-block pre { white-space: pre; }
+    .bibtex-block pre { white-space: pre-wrap; word-break: break-word; }
 
     .copy-btn {
       position: absolute;
@@ -641,6 +643,55 @@
     }
 
     .copy-btn:hover { background: rgba(255,255,255,.2); color: #fff; }
+
+    /* ── BibTeX Modal ──────────────────────────────── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,.55);
+      padding: 1.5rem;
+      z-index: 1000;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal-box {
+      position: relative;
+      width: 100%;
+      max-width: 720px;
+      max-height: 85vh;
+      overflow-y: auto;
+      background: var(--bg);
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    }
+
+    .modal-title {
+      font-family: var(--font-heading);
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: .3rem;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: .8rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.6rem;
+      line-height: 1;
+      color: var(--text-light);
+      cursor: pointer;
+      transition: color .2s;
+    }
+
+    .modal-close:hover { color: var(--text); }
 
     /* ── Footer ────────────────────────────────────── */
     footer {
@@ -745,14 +796,20 @@
 
     #main p,
     #main .caption,
-    #main .abstract-text,
+    #main .abstract-text {
+      max-width: 820px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: justify;
+    }
+
     #main .author-list,
     #main .affiliations,
     #main .equal-note {
       max-width: 820px;
       margin-left: auto;
       margin-right: auto;
-      text-align: justify;
+      text-align: center;
     }
   </style>
 </head>
@@ -776,6 +833,13 @@
     <!-- ── Authors ── -->
     <section class="authors-section fade-up">
       <p class="paper-title">Diffusion Policy Fine-tuning for Humanoid Loco-manipulation via Reinforcement Learning</p>
+      <p class="author-list">
+        <a href="https://scholar.google.com/citations?user=IC9VJpsAAAAJ&hl=en" target="_blank">Zhaoyuan Gu</a><sup>*</sup>, <a href="https://peterchenyipu.github.io/" target="_blank">Yipu Chen</a><sup>*</sup>, Zimeng Chai<sup>*</sup>,
+        Alfred Cueva, Thong Nguyen<sup>&dagger;</sup>, Yifan Wu<sup>&dagger;</sup>, Huishu Xue<sup>&dagger;</sup>,
+        Minji Kim, Isaac Legene, Fukang Liu, Matthew Kim, Ayan Barula, Yongxin Chen, Ye Zhao
+      </p>
+      <p class="affiliations">Institute for Robotics and Intelligent Machines, Georgia Institute of Technology</p>
+      <p class="equal-note"><sup>*</sup>Equal contribution &nbsp;&nbsp; <sup>&dagger;</sup>Equal contribution</p>
     </section>
 
     <!-- ── Teaser Video ── -->
@@ -787,9 +851,10 @@
       </div>
       <div class="links-bar">
         <span class="link-btn"><i class="fa-solid fa-file-pdf"></i> Paper</span>
-        <a class="link-btn" href="https://arxiv.org/abs/2603.13707" target="_blank"><i class="ai ai-arxiv"></i> arXiv</a>
+        <a class="link-btn" href="https://arxiv.org/html/2603.13707v2" target="_blank"><i class="ai ai-arxiv"></i> arXiv</a>
         <span class="link-btn"><i class="fa-brands fa-github"></i> Code</span>
         <span class="link-btn"><i class="fa-brands fa-x-twitter"></i> Thread</span>
+        <button type="button" class="link-btn" onclick="openBibtexModal()"><i class="fa-solid fa-quote-left"></i> BibTeX</button>
       </div>
     </section>
 
@@ -1267,6 +1332,23 @@
     </p>
   </footer>
 
+  <!-- ════════ BibTeX Modal ════════ -->
+  <div class="modal-overlay" id="bibtexModal" onclick="if (event.target === this) closeBibtexModal();">
+    <div class="modal-box">
+      <button type="button" class="modal-close" onclick="closeBibtexModal()" aria-label="Close">&times;</button>
+      <h3 class="modal-title">Cite this work</h3>
+      <div class="bibtex-block">
+        <button type="button" class="copy-btn" id="copyBtn" onclick="copyBibtex()">Copy</button>
+        <pre id="bibtexCode">@article{gu2026refinedp,
+  title={REFINE-DP: Diffusion Policy Fine-tuning for Humanoid Loco-manipulation via Reinforcement Learning},
+  author={Gu, Zhaoyuan and Chen, Yipu and Chai, Zimeng and Cueva, Alfred and Nguyen, Thong and Wu, Yifan and Xue, Huishu and Kim, Minji and Legene, Isaac and Liu, Fukang and Kim, Matthew and Barula, Ayan and Chen, Yongxin and Zhao, Ye},
+  journal={arXiv preprint arXiv:2603.13707},
+  year={2026}
+}</pre>
+      </div>
+    </div>
+  </div>
+
   <!-- ════════ JS ════════ -->
   <script>
     /* ── Copy BibTeX ─────────────────────────────── */
@@ -1278,6 +1360,17 @@
         setTimeout(() => btn.textContent = 'Copy', 1800);
       });
     }
+
+    /* ── BibTeX Modal ────────────────────────────── */
+    function openBibtexModal() {
+      document.getElementById('bibtexModal').classList.add('open');
+    }
+    function closeBibtexModal() {
+      document.getElementById('bibtexModal').classList.remove('open');
+    }
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeBibtexModal();
+    });
 
     /* ── Fade-in on scroll ───────────────────────── */
     const observer = new IntersectionObserver((entries) => {
